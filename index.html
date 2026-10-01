@@ -210,7 +210,7 @@ function mostrarApp(user){document.body.classList.toggle("autenticado",!!user);$
 async function initStore(){
   if(!SUPABASE_URL||SUPABASE_URL.indexOf("COLE_AQUI")===0||!SUPABASE_KEY||SUPABASE_KEY.indexOf("COLE_AQUI")===0){setAuthMessage("Configure a URL e a Publishable Key do Supabase no início deste arquivo.",true);return}
   try{supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);var sess=await supabaseClient.auth.getSession();if(sess.data&&sess.data.session)mostrarApp(sess.data.session.user);else mostrarApp(null);supabaseClient.auth.onAuthStateChange(function(_event,session){mostrarApp(session?session.user:null)})}
-  catch(e){setAuthMessage("Não foi possível conectar ao banco. Confira a configuração do Supabase.",true)}
+  catch(e){setAuthMessage("ERRO SUPABASE: "+(e && e.message ? e.message : e),true);console.error(e)}
 }
 $("entrar").onclick=async function(){setAuthMessage("Entrando...");try{var r=await supabaseClient.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});if(r.error)throw r.error;setAuthMessage("Acesso realizado.")}catch(e){setAuthMessage("E-mail ou senha inválidos, ou acesso ainda não confirmado.",true)}};
 $("criarConta").onclick=async function(){var email=$("loginEmail").value.trim(),senha=$("loginPassword").value;if(!email||!senha){setAuthMessage("Informe e-mail e senha para criar o acesso.",true);return}setAuthMessage("Criando acesso...");try{var r=await supabaseClient.auth.signUp({email:email,password:senha});if(r.error)throw r.error;setAuthMessage("Acesso criado. Se a confirmação de e-mail estiver ativa, confira sua caixa de entrada antes de entrar.")}catch(e){setAuthMessage(e.message||"Não foi possível criar o acesso.",true)}};
